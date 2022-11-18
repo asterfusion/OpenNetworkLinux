@@ -118,7 +118,11 @@ ifeq ($(ONL_DEBIAN_SUITE),jessie)
 # Until that can be fixed we skip cert checks here:
 EXTRA_WGET_OPTIONS := --no-check-certificate
 endif
-
+ifeq ($(ONL_DEBIAN_SUITE),stretch)
+# The certificates for kernel.org are expired in the stretch container.
+# Until that can be fixed we skip cert checks here:
+EXTRA_WGET_OPTIONS := --no-check-certificate
+endif
 $(K_ARCHIVE_PATH):
 	cd $(ONL_KERNELS)/archives && wget $(EXTRA_WGET_OPTIONS) $(K_ARCHIVE_URL)
 
