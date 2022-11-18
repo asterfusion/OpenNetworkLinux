@@ -302,7 +302,8 @@ class OnlRfsBuilder(object):
 
     DEFAULTS = dict(
         DEBIAN_SUITE='wheezy',
-        DEBIAN_MIRROR='mirrors.kernel.org/debian/',
+        #DEBIAN_MIRROR='mirrors.kernel.org/debian/',
+        DEBIAN_MIRROR='ftp.cn.debian.org/debian/',
         APT_CACHE='127.0.0.1:3142/'
         )
 
@@ -614,6 +615,21 @@ rm -f /usr/sbin/policy-rc.d
                     with open(fn, "w") as f:
                         f.write("%s\n" % issue)
                     onlu.execute("sudo chmod a-w %s" % fn)
+
+            logger.debug("by tsihang : getcwd %s" % os.getcwd())
+            logger.debug("by tsihang : opsdir %s" % dir_)
+            # Install extra pkgs
+            pkgsrc = os.path.join(os.getenv('ONL'), 'third_party', 'pkgs')
+            pkgdst = os.path.join(os.getcwd(), dir_, 'pkgs')
+            onlu.execute("sudo cp -rf %s %s" % (pkgsrc, pkgdst))
+            logger.debug("Installing '%s'..." % pkgdst)
+            onlu.execute("sudo chroot %s /bin/bash %s" % (dir_, "/pkgs/install-extra-pkgs.sh"))
+            onlu.execute("sudo chroot %s /bin/rm %s -rf" % (dir_, "/pkgs"))
+            # Copy README.txt
+            rmsrc = os.path.join(os.getenv('ONL'), 'third_party', 'README.txt')
+            rmdst = os.path.join(os.getcwd(), dir_, 'root/README.txt')
+            onlu.execute("sudo cp %s %s" % (rmsrc, rmdst))
+            logger.debug("Installing '%s'..." % rmdst)
 
 
     def update(self, dir_, packages):

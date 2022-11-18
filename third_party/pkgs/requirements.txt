@@ -1,0 +1,26 @@
+# For p4studio tools
+click==7.1.2
+click-logging==1.0.1
+cmakeast==0.0.18
+PyYAML==5.3.1
+jsonschema==2.6.0
+
+# For SDK sources
+Tenjin
+crc16
+crcmod
+ctypesgen==1.0.1
+getmac==0.8.2
+ipaddress
+jsl
+netifaces
+packaging==20.9
+ply
+psutil
+pysubnettree
+scapy-helper
+setuptools==44.1.1
+simplejson
+six>=1.12.0
+xmlrunner
+doxypy 
