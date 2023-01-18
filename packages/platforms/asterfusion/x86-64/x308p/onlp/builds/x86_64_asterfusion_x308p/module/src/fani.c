@@ -35,7 +35,7 @@ onlp_fan_info_t fan_info[] = {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN1), "FANTRAY 1", 0 },
         ONLP_FAN_STATUS_PRESENT,
         //ONLP_FAN_CAPS_SET_RPM | ONLP_FAN_CAPS_GET_RPM,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -43,7 +43,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN2), "FANTRAY 2", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -51,7 +51,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN3), "FANTRAY 3", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -59,7 +59,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN4), "FANTRAY 4", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -67,7 +67,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN5), "FANTRAY 5", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -75,7 +75,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN6), "FANTRAY 6", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -83,7 +83,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN7), "FANTRAY 7", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -91,7 +91,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN8), "FANTRAY 8", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -99,7 +99,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN9), "FANTRAY 9", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -107,7 +107,7 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN10), "FANTRAY 10", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
@@ -115,13 +115,29 @@ onlp_fan_info_t fan_info[] = {
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN11), "FANTRAY 11", 0 },
         ONLP_FAN_STATUS_PRESENT,
-        ONLP_FAN_CAPS_GET_RPM,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
         0,
         0,
         ONLP_FAN_MODE_INVALID,
     },
     {
         { ONLP_FAN_ID_CREATE(FAN_ID_FAN12), "FANTRAY 12", 0 },
+        ONLP_FAN_STATUS_PRESENT,
+        ONLP_FAN_CAPS_GET_RPM | ONLP_FAN_CAPS_GET_PERCENTAGE,
+        0,
+        0,
+        ONLP_FAN_MODE_INVALID,
+    },
+    {
+        { ONLP_FAN_ID_CREATE(FAN_ID_PSU1), "FAN IN PSU 1", 0 },
+        ONLP_FAN_STATUS_PRESENT,
+        ONLP_FAN_CAPS_GET_RPM,
+        0,
+        0,
+        ONLP_FAN_MODE_INVALID,
+    },
+    {
+        { ONLP_FAN_ID_CREATE(FAN_ID_PSU1), "FAN IN PSU 2", 0 },
         ONLP_FAN_STATUS_PRESENT,
         ONLP_FAN_CAPS_GET_RPM,
         0,
@@ -191,6 +207,8 @@ onlp_fani_percentage_set(onlp_oid_t id, int percentage)
         case FAN_ID_FAN10:
         case FAN_ID_FAN11:
         case FAN_ID_FAN12:
+        case FAN_ID_PSU1:
+        case FAN_ID_PSU2:
 			rc = onlp_fani_rpm_set(id, perc_val);
             break;
         default:
@@ -221,6 +239,8 @@ onlp_fani_info_get(onlp_oid_t id, onlp_fan_info_t* info)
         case FAN_ID_FAN10:
         case FAN_ID_FAN11:
         case FAN_ID_FAN12:
+        case FAN_ID_PSU1:
+        case FAN_ID_PSU2:
             rc = pltfm_fan_info_get(info, fan_id);
             break;
         default:            

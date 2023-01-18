@@ -12,7 +12,7 @@ PKGS=$ROOTDIR/bfnplatform
 INSTALL_ONLINE=false
 
 # install sde mainly pkgs
-dpkg -i $PKGS/bsp-8.9.x_22.11-rc2-20221111-sde9u3_generic_amd64.deb
+dpkg -i $PKGS/bsp-8.9.x_22.11-rc4-20221125-sde9u3_generic_amd64.deb
 dpkg -i $PKGS/sde-9.7.4_1.00-all_generic_amd64.deb
 dpkg -i $PKGS/p4c-9.7.4_1.00-all_generic_amd64.deb
 dpkg -i $PKGS/kdrv-9.7.4_1.00-all_4.14.151-OpenNetworkLinux_amd64.deb

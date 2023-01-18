@@ -131,6 +131,9 @@
 - libuv1
 - cmake
 - libpci-dev
+- libnghttp2-dev
+- librtmp-dev
+- libssh2-1
 - hdparm
 # For docker-ce
 - liberror-perl

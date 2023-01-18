@@ -43,9 +43,9 @@
 
 #define QSFP_NUM              8
 #define SFP_NUM               48
-#define THERMAL_NUM           12
+#define THERMAL_NUM           14
 #define LED_NUM               4
-#define FAN_NUM               12
+#define FAN_NUM               14
 
 
 #define THERMAL_SHUTDOWN_DEFAULT        105000
@@ -165,6 +165,8 @@ typedef enum thermal_id_e {
     THERMAL_ID_FAN2 = 10,
     THERMAL_ID_TOFINO_MAIN = 11,
     THERMAL_ID_TOFINO_REMOTE = 12,
+    THERMAL_ID_PSU1 = 13,
+    THERMAL_ID_PSU2 = 14,
     //THERMAL_ID_FAN1 = 7,
     //THERMAL_ID_FAN2 = 8,
     //THERMAL_ID_FAN3 = 9,
@@ -185,6 +187,8 @@ typedef enum thermal_oid_e {
     THERMAL_OID_FAN2                = ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN2),
     THERMAL_OID_TOFINO_MAIN         = ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_MAIN),
     THERMAL_OID_TOFINO_REMOTE       = ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_REMOTE),
+    THERMAL_OID_PSU1                = ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU1),
+    THERMAL_OID_PSU2                = ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU2),
 #if 0
     THERMAL_OID_FAN1                = ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN1),
     THERMAL_OID_FAN2                = ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN2),
@@ -213,6 +217,8 @@ typedef enum fan_id_e {
     FAN_ID_FAN10 = 10,
     FAN_ID_FAN11 = 11,
     FAN_ID_FAN12 = 12,
+    FAN_ID_PSU1 = 13,
+    FAN_ID_PSU2 = 14,
 } fan_id_t;
 
 typedef enum psu_id_e {

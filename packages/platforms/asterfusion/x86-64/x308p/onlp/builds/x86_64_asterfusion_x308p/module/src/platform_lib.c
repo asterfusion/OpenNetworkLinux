@@ -82,10 +82,17 @@ pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
     FILE *fp;
     char f[32] = {0};
     char data[32] = {0};
-    
-    sprintf(f, "/var/asterfusion/thermal_%d_temp", thermal_id);
+
+    if (thermal_id < THERMAL_ID_PSU1) {
+        sprintf(f, "/var/asterfusion/thermal_%d_temp", thermal_id);
+    } else {
+        sprintf(f, "/var/asterfusion/psu_%d_temp", thermal_id - THERMAL_ID_PSU1 + 1);
+    }
+
     fp = fopen(f, "r");
     if (!fp) {
+        info->status &= ~ONLP_THERMAL_STATUS_PRESENT;
+        error = ONLP_STATUS_OK;
         goto finish;
     } else {
         if(fgets (data, 32, fp) != NULL) {
@@ -99,6 +106,7 @@ pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
             }
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 finish:
     return error;
@@ -117,82 +125,97 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
     info->caps = 0;
     info->caps = ONLP_PSU_CAPS_AC | ONLP_PSU_CAPS_IIN | ONLP_PSU_CAPS_IOUT | ONLP_PSU_CAPS_VIN | ONLP_PSU_CAPS_VOUT | ONLP_PSU_CAPS_PIN | ONLP_PSU_CAPS_POUT;
 
+    sprintf(f, "/var/asterfusion/psu_%d_model", id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            memset (info->model, 0x00, ONLP_CONFIG_INFO_STR_MAX);
+            strcpy (info->model, data);
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    sprintf(f, "/var/asterfusion/psu_%d_serial", id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            memset (info->serial, 0x00, ONLP_CONFIG_INFO_STR_MAX);
+            strcpy (info->serial, data);
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
     sprintf(f, "/var/asterfusion/psu_%d_iin", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             temp = atoi(data);
             info->miin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_iout", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             temp = atoi(data);
             info->miout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vin", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             temp = atoi(data);
             info->mvin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vout", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             temp = atoi(data);
             info->mvout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pin", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             info->mpin = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pout", id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             info->mpout = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose (fp);
     }
 
-finish:
     return error;
 }
 
-int 
-pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
+static int
+pltfm_chss_fan_info_get(onlp_fan_info_t* info, int fan_id)
 {
     int error = ONLP_STATUS_E_INTERNAL;
     FILE *fp;
@@ -201,9 +224,87 @@ pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
 
     sprintf(f, "/var/asterfusion/fan_%d_presence", fan_id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            int absent = atoi(data);
+            if (absent) {
+                info->status &= ~ONLP_FAN_STATUS_PRESENT;
+            } else {
+                info->status |= ONLP_FAN_STATUS_PRESENT;
+            }
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    sprintf(f, "/var/asterfusion/fan_%d_model", fan_id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            memset (info->model, 0x00, ONLP_CONFIG_INFO_STR_MAX);
+            strcpy (info->model, data);
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    sprintf(f, "/var/asterfusion/fan_%d_serial", fan_id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            memset (info->serial, 0x00, ONLP_CONFIG_INFO_STR_MAX);
+            strcpy (info->serial, data);
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    sprintf(f, "/var/asterfusion/fan_%d_rpm", fan_id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            info->rpm = atoi(data);
+            info->status |= ONLP_FAN_STATUS_F2B;
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    sprintf(f, "/var/asterfusion/fan_%d_percent", fan_id);
+    fp = fopen(f, "r");
+    if (fp) {
+        if(fgets (data, 32, fp) != NULL) {
+            info->percentage = atoi(data);
+            error = ONLP_STATUS_OK;
+        }
+        fclose (fp);
+    }
+
+    return error;
+}
+
+static int
+pltfm_psu_fan_info_get(onlp_fan_info_t* info, int fan_id)
+{
+    FILE *fp;
+    char f[32] = {0};
+    char data[32] = {0};
+    int psu_id;
+
+    switch (fan_id) {
+        case FAN_ID_PSU1:
+            psu_id = PSU1_ID;
+            break;
+        case FAN_ID_PSU2:
+            psu_id = PSU2_ID;
+            break;
+        default:
+            return ONLP_STATUS_E_INTERNAL;
+    }
+
+    sprintf(f, "/var/asterfusion/psu_%d_presence", psu_id);
+    fp = fopen(f, "r");
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             int absent = atoi(data);
             if (absent) {
@@ -212,24 +313,56 @@ pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
                 info->status |= ONLP_FAN_STATUS_PRESENT;
             }
         }
-        error = ONLP_STATUS_OK;
         fclose (fp);
+    } else {
+        info->status &= ~ONLP_FAN_STATUS_PRESENT;
     }
 
-    sprintf(f, "/var/asterfusion/fan_%d_rpm", fan_id);
+    sprintf(f, "/var/asterfusion/psu_%d_fan", psu_id);
     fp = fopen(f, "r");
-    if (!fp) {
-        goto finish;
-    } else {
+    if (fp) {
         if(fgets (data, 32, fp) != NULL) {
             info->rpm = atoi(data);
-            info->status |= ONLP_FAN_STATUS_F2B;
+            if (info->rpm != 0) {
+                info->status |= ONLP_FAN_STATUS_F2B;
+            } else {
+                info->status &= ~ONLP_FAN_STATUS_PRESENT;
+            }
         }
-        error = ONLP_STATUS_OK;
         fclose (fp);
+    } else {
+        info->status &= ~ONLP_FAN_STATUS_PRESENT;
     }
 
-finish:
+    return ONLP_STATUS_OK;
+}
+
+int
+pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
+{
+    int error;
+
+    switch (fan_id) {
+        case FAN_ID_FAN1:
+        case FAN_ID_FAN2:
+        case FAN_ID_FAN3:
+        case FAN_ID_FAN4:
+        case FAN_ID_FAN5:
+        case FAN_ID_FAN6:
+        case FAN_ID_FAN7:
+        case FAN_ID_FAN8:
+        case FAN_ID_FAN9:
+        case FAN_ID_FAN10:
+        case FAN_ID_FAN11:
+        case FAN_ID_FAN12:
+            error = pltfm_chss_fan_info_get(info, fan_id);
+            break;
+        case FAN_ID_PSU1:
+        case FAN_ID_PSU2:
+            error = pltfm_psu_fan_info_get(info, fan_id);
+            break;
+    }
+
     return error;
 }
 
@@ -258,8 +391,8 @@ pltfm_psu_present_get(int *exist, int id)
             }
             error = ONLP_STATUS_OK;
        }
+       fclose(fp);
     }
-    fclose(fp);
 finish:
     return error;
 }

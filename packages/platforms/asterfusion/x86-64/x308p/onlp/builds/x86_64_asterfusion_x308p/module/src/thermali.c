@@ -79,6 +79,14 @@ static onlp_thermal_info_t thermal_info[] = {
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU1), "PSU 1", 0},
+                ONLP_THERMAL_STATUS_PRESENT,
+                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+    },
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_PSU2), "PSU 2", 0},
+                ONLP_THERMAL_STATUS_PRESENT,
+                ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
+    }
     #if 0
     { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN1), "FAN-1 Thermal", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
@@ -142,6 +150,8 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
         case THERMAL_ID_FAN2:
         case THERMAL_ID_TOFINO_MAIN:
         case THERMAL_ID_TOFINO_REMOTE:
+        case THERMAL_ID_PSU1:
+        case THERMAL_ID_PSU2:
 #if 0
         case THERMAL_ID_FAN1:
         case THERMAL_ID_FAN2:
