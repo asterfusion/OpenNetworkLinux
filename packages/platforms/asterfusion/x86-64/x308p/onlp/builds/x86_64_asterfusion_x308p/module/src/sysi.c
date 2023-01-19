@@ -52,15 +52,19 @@ onlp_sysi_init(void)
 int
 onlp_sysi_onie_data_get(uint8_t** data, int* size)
 {
+    data = data;
+    size = size;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
 void onlp_sysi_onie_data_free(uint8_t* data) {
+    data = data;
     return;
 }
 
 int onlp_sysi_onie_data_phys_addr_get(void** physaddr)
 {
+    physaddr = physaddr;
     /* We cannot supply this API to map a physical eeprom */
     return ONLP_STATUS_E_INTERNAL;
 }
@@ -137,6 +141,7 @@ onlp_sysi_platform_info_get(onlp_platform_info_t* pi)
 
 int onlp_sysi_platform_set(const char* platform)
 {
+    platform = platform;
     return ONLP_STATUS_OK;
 }
 
@@ -148,10 +153,15 @@ void onlp_sysi_platform_info_free(onlp_platform_info_t* info)
 
 int onlp_sysi_ioctl(int code, va_list vargs)
 {
+    code = code;
+    vargs = vargs;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 int onlp_sysi_debug(aim_pvs_t* pvs, int argc, char** argv)
 {
+    pvs = pvs;
+    argc = argc;
+    argv = argv;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 

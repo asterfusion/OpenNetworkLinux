@@ -58,7 +58,7 @@ onlp_sfpi_bitmap_get(onlp_sfp_bitmap_t* bmap)
 int
 onlp_sfpi_is_present(int port)
 {
-    int status, rc, pres_val;
+    int status = 0, rc, pres_val;
     long long int pres_val_long;
 
     if (port <= QSFP_NUM) {
@@ -206,14 +206,20 @@ onlp_sfpi_dom_read(int port, uint8_t data[256])
 int
 onlp_sfpi_control_set(int port, onlp_sfp_control_t control, int value)
 {
-    AIM_LOG_MSG("No control set API supported.");
+    port = port;
+    control = control;
+    value = value;
+    AIM_LOG_MSG("No control API supported.");
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
 int
 onlp_sfpi_control_get(int port, onlp_sfp_control_t control, int* value)
 {
-    AIM_LOG_MSG("No control get API supported.");
+    port = port;
+    control = control;
+    value = value;
+    AIM_LOG_MSG("No control API supported.");
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -223,6 +229,8 @@ onlp_sfpi_control_get(int port, onlp_sfp_control_t control, int* value)
 int
 onlp_sfpi_ioctl(int port, va_list vargs)
 {
+    port = port;
+    vargs = vargs;
     AIM_LOG_MSG("No ioctls API supported.");
     return ONLP_STATUS_E_UNSUPPORTED;
 }
@@ -239,6 +247,11 @@ onlp_sfpi_ioctl(int port, va_list vargs)
 int
 onlp_sfpi_control_supported(int port, onlp_sfp_control_t control, int* rv)
 {
+    port = port;
+    control = control;
+    rv = rv;
+    AIM_LOG_MSG("No control API supported.");
+
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -254,6 +267,8 @@ onlp_sfpi_control_supported(int port, onlp_sfp_control_t control, int* rv)
 int
 onlp_sfpi_post_insert(int port, sff_info_t* sff_info)
 {
+    port = port;
+    sff_info = sff_info;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -267,6 +282,9 @@ onlp_sfpi_post_insert(int port, sff_info_t* sff_info)
 int
 onlp_sfpi_dev_readb(int port, uint8_t devaddr, uint8_t addr)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -275,6 +293,10 @@ onlp_sfpi_dev_readb(int port, uint8_t devaddr, uint8_t addr)
  */
 int onlp_sfpi_dev_writeb(int port, uint8_t devaddr, uint8_t addr, uint8_t value)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
+    value = value;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -287,6 +309,9 @@ int onlp_sfpi_dev_writeb(int port, uint8_t devaddr, uint8_t addr, uint8_t value)
  */
 int onlp_sfpi_dev_readw(int port, uint8_t devaddr, uint8_t addr)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -296,6 +321,10 @@ int onlp_sfpi_dev_readw(int port, uint8_t devaddr, uint8_t addr)
  */
 int onlp_sfpi_dev_writew(int port, uint8_t devaddr, uint8_t addr, uint16_t value)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
+    value = value;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -309,6 +338,11 @@ int onlp_sfpi_dev_writew(int port, uint8_t devaddr, uint8_t addr, uint16_t value
  */
 int onlp_sfpi_dev_read(int port, uint8_t devaddr, uint8_t addr, uint8_t* rdata, int size)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
+    rdata = rdata;
+    size = size;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 
@@ -317,6 +351,11 @@ int onlp_sfpi_dev_read(int port, uint8_t devaddr, uint8_t addr, uint8_t* rdata, 
  */
 int onlp_sfpi_dev_write(int port, uint8_t devaddr, uint8_t addr, uint8_t* data, int size)
 {
+    port = port;
+    devaddr = devaddr;
+    addr = addr;
+    data = data;
+    size = size;
     return ONLP_STATUS_E_UNSUPPORTED;
 }
 

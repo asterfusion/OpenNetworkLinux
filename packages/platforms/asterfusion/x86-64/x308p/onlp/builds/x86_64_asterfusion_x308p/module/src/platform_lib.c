@@ -37,6 +37,7 @@
 
 int pltfm_qsfp_present_get(int port, int *mask)
 {
+    port = port;
     int error = ONLP_STATUS_E_UNSUPPORTED;
     FILE *fp;
     char data[256] = {0};
@@ -57,6 +58,7 @@ int pltfm_qsfp_present_get(int port, int *mask)
 
 int pltfm_sfp_present_get(int port, long long int *mask)
 {
+    port = port;
     int error = ONLP_STATUS_E_UNSUPPORTED;
     FILE *fp;
     char data[256] = {0};
@@ -340,7 +342,7 @@ pltfm_psu_fan_info_get(onlp_fan_info_t* info, int fan_id)
 int
 pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
 {
-    int error;
+    int error = 0;
 
     switch (fan_id) {
         case FAN_ID_FAN1:
