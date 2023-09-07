@@ -303,7 +303,9 @@ class OnlRfsBuilder(object):
     DEFAULTS = dict(
         DEBIAN_SUITE='wheezy',
         #DEBIAN_MIRROR='mirrors.kernel.org/debian/',
-        DEBIAN_MIRROR='ftp.cn.debian.org/debian/',
+        #DEBIAN_MIRROR='ftp.cn.debian.org/debian/',
+        #DEBIAN_MIRROR='archive.debian.org/debian/',
+        DEBIAN_MIRROR='mirrors.aliyun.com/debian-archive/debian/',
         APT_CACHE='127.0.0.1:3142/'
         )
 
@@ -628,6 +630,11 @@ rm -f /usr/sbin/policy-rc.d
             # Copy README.txt
             rmsrc = os.path.join(os.getenv('ONL'), 'third_party', 'README.txt')
             rmdst = os.path.join(os.getcwd(), dir_, 'root/README.txt')
+            onlu.execute("sudo cp %s %s" % (rmsrc, rmdst))
+            logger.debug("Installing '%s'..." % rmdst)
+            # Copy quick-start.sh
+            rmsrc = os.path.join(os.getenv('ONL'), 'third_party', 'quick-start.sh')
+            rmdst = os.path.join(os.getcwd(), dir_, 'root/quick-start.sh')
             onlu.execute("sudo cp %s %s" % (rmsrc, rmdst))
             logger.debug("Installing '%s'..." % rmdst)
 

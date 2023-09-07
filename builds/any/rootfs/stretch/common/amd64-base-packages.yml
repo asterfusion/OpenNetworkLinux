@@ -135,6 +135,10 @@
 - librtmp-dev
 - libssh2-1
 - hdparm
+- lshw
+- dos2unix
+- tftp
+- telnet
 # For docker-ce
 - liberror-perl
 - pigz
