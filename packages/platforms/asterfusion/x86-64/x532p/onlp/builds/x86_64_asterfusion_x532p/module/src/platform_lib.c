@@ -93,6 +93,7 @@ pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
             info->mcelsius = atoi(data);
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 finish:
     return error;
@@ -121,6 +122,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_iout", id);
@@ -133,6 +135,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vin", id);
@@ -145,6 +148,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vout", id);
@@ -157,6 +161,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pin", id);
@@ -168,6 +173,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpin = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pout", id);
@@ -179,6 +185,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpout = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
 finish:

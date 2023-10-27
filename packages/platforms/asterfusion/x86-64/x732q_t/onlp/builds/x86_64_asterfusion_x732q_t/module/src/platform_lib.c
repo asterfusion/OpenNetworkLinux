@@ -49,9 +49,9 @@ int pltfm_qsfp_present_get(int port, int *mask)
       if (fgets(data, 256 - 1, fp) != NULL) {
           *mask = strtol(data, NULL, 16);
           *mask ^= 0xFFFFFFFF;
-          fclose(fp);
           error = ONLP_STATUS_OK;
       }
+      fclose(fp);
     }
     return error;
 }
@@ -74,6 +74,7 @@ pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id)
             info->mcelsius = atoi(data);
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 finish:
     return error;
@@ -102,6 +103,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_iout", id);
@@ -114,6 +116,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->miout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vin", id);
@@ -126,6 +129,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvin = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_vout", id);
@@ -138,6 +142,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mvout = (temp >> 8) * 1000 + (temp & 0xFF) * 100;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pin", id);
@@ -149,6 +154,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpin = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     sprintf(f, "/var/asterfusion/psu_%d_pout", id);
@@ -160,6 +166,7 @@ pltfm_psu_get(onlp_psu_info_t* info, int id)
             info->mpout = atoi(data) * 1000;
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
 finish:
@@ -183,6 +190,7 @@ pltfm_fan_info_get(onlp_fan_info_t* info, int fan_id)
             info->rpm = atoi(data);
             error = ONLP_STATUS_OK;
         }
+        fclose(fp);
     }
 
     info->status |= ONLP_FAN_STATUS_PRESENT | ONLP_FAN_STATUS_F2B;
@@ -216,6 +224,7 @@ pltfm_psu_present_get(int *exist, int id)
             }
             error = ONLP_STATUS_OK;
        }
+       fclose(fp);
     }
 finish:
     return error;
