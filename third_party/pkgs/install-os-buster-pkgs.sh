@@ -5,6 +5,11 @@
 # Modify install-os-buster-pkgs.sh to add or delete customized components if reuqired.
 # Comment all entries in install-os-buster-pkgs.sh will disable the intergration.
 #
+#
+# Last Updated on 06 Mar. 2024
+# Last Updated on 30 Aug. 2023
+# Created by Hang Tsi <tsihang@asterfusion.com> on 02 Nov. 2022
+#
 
 ROOTDIR=/pkgs
 OS=`lsb_release -cs`
@@ -19,6 +24,9 @@ INSTALL_ONLINE=false
 
 # Install online.
 # pip3 install -r $PKGS/requirements.txt
+
+# Login motd
+cp $PKGS/motd /etc/
 
 # For p4studio tools
 pip3 install $PKGS/click-7.1.2-py2.py3-none-any.whl

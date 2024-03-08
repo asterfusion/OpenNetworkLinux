@@ -5,6 +5,11 @@
 # Modify install-os-stretch-docker-pkgs.sh to add or delete customized components if reuqired.
 # Comment all entries in install-os-stretch-docker-pkgs.sh will disable the intergration.
 #
+#
+# Last Updated on 06 Mar. 2024
+# Last Updated on 30 Aug. 2023
+# Created by Hang Tsi <tsihang@asterfusion.com> on 02 Nov. 2022
+#
 
 ROOTDIR=/pkgs
 OS=`lsb_release -cs`

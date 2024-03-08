@@ -17,6 +17,11 @@
 - gdisk
 - acpid
 # Added by tsihang, 2021-05-11
+- libreadline-dev
+- python3-sphinx
+- python-sphinx
+- texinfo
+- install-info
 - zlib1g-dev
 - cython
 - lsb-core
@@ -153,3 +158,12 @@
 - linux-headers-amd64
 - linux-headers-4.9.0-13-common
 - linux-headers-4.9.0-13-amd64
+- manpages
+- manpages-dev
+- manpages-de
+- manpages-de-dev
+#- manpages-posix
+#- manpages-posix-dev
+- glibc-doc
+- man-db
+- man

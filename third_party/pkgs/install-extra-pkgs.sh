@@ -5,6 +5,10 @@
 # Modify install-extra-pkgs.sh to add or delete customized components if reuqired.
 # Comment all entries in install-extra-pkgs.sh will disable the intergration.
 #
+# Last Updated on 07 Mar, 2024
+# Last Updated on 18 Nov, 2022
+# Created by Hang Tsi <tsihang@asterfusion.com> on 02 Nov. 2022
+#
 
 ROOTDIR=/pkgs
 OS=`lsb_release -cs`

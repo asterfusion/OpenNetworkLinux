@@ -5,6 +5,11 @@
 # Modify install-os-stretch-pkgs.sh to add or delete customized components if reuqired.
 # Comment all entries in install-os-stretch-pkgs.sh will disable the intergration.
 #
+#
+# Last Updated on 07 Mar. 2024
+# Last Updated on 30 Aug. 2023
+# Created by Hang Tsi <tsihang@asterfusion.com> on 02 Nov. 2022
+#
 
 ROOTDIR=/pkgs
 OS=`lsb_release -cs`
@@ -19,6 +24,15 @@ dpkg -i $PKGS/libi2c-dev_3.1.2-3_all.deb
 
 # Install online.
 # pip3 install -r $PKGS/requirements.txt
+
+# For man
+cd $PKGS
+tar -xvf man-pages-posix-2017-a.tar.xz
+make -C man-pages-posix-2017/
+cd -
+
+# Login motd
+cp $PKGS/motd /etc/
 
 # For p4studio tools
 pip3 install $PKGS/click-7.1.2-py2.py3-none-any.whl
