@@ -27,38 +27,45 @@
 #include <onlplib/file.h>
 #include "x86_64_asterfusion_x732q_log.h"
 #include "platform_lib.h"
-      
+
+#define VALIDATE(_id)                           \
+    do {                                        \
+        if(!ONLP_OID_IS_THERMAL(_id)) {        \
+            return ONLP_STATUS_E_INVALID;       \
+        }                                       \
+    } while(0)
+
 static onlp_thermal_info_t thermal_info[] = {
     { }, /* Not used */
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Chassis Thermal (Left)", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Far left of mainboard", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Chassis Thermal (Right)", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Far right of mainboard", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BACK_DC), "DC Thermal", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN_1), "Fan 1", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BACK_ASIC), "ASIC Thermal 1", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN_2), "Fan 2", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_JUNCTION_ASIC), "ASIC Thermal 2", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_AMBIENT), "BF Ambient <- from BMC", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_AROUND_ASIC), "ASIC Thermal 3", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_JUNCTION), "BF Junction <- from BMC", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_MAIN), "TOFINO MAIN SENSOR", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_MAIN), "Tofino Main Temp Sensor <- from tofino", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_REMOTE), "TOFINO REMOTE SENSOR", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_REMOTE), "Tofino Remote Temp Sensor <- from tofino", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     }
@@ -106,19 +113,21 @@ onlp_thermali_init(void)
 int
 onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 {   
-    int sensor_id, rc;
-    sensor_id = ONLP_OID_ID_GET(id);
-    
-    *info = thermal_info[sensor_id];
+    int thermalid, rc;
+    thermalid = ONLP_OID_ID_GET(id);
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    *info = thermal_info[thermalid];
     info->caps |= ONLP_THERMAL_CAPS_GET_TEMPERATURE;
 
-    switch(sensor_id) {
+    switch(thermalid) {
         case THERMAL_ID_LEFT_MAIN_BOARD:
         case THERMAL_ID_RIGHT_MAIN_BOARD:
-        case THERMAL_ID_BACK_DC:
-        case THERMAL_ID_BACK_ASIC:
-        case THERMAL_ID_JUNCTION_ASIC:
-        case THERMAL_ID_AROUND_ASIC:
+        case THERMAL_ID_FAN_1:
+        case THERMAL_ID_FAN_2:
+        case THERMAL_ID_BF_AMBIENT:
+        case THERMAL_ID_BF_JUNCTION:
         case THERMAL_ID_TOFINO_MAIN:
         case THERMAL_ID_TOFINO_REMOTE:
 #if 0
@@ -127,7 +136,7 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
         case THERMAL_ID_FAN3:
         case THERMAL_ID_FAN4:
 #endif
-            rc = pltfm_thermal_get(info, sensor_id);
+            rc = pltfm_thermal_get(info, thermalid);
             break;
         default:
             return ONLP_STATUS_E_INTERNAL;
@@ -138,11 +147,35 @@ onlp_thermali_info_get(onlp_oid_t id, onlp_thermal_info_t* info)
 }
 int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
 {
-    return ONLP_STATUS_E_UNSUPPORTED;
+    onlp_thermal_info_t* info;
+    int thermalid;
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    if(thermalid >= THERMAL_NUM) {
+        return ONLP_STATUS_E_INVALID;
+    }
+
+    info = &thermal_info[thermalid];
+    *rv  = info->status;
+
+    return ONLP_STATUS_OK;
 }
 int onlp_thermali_hdr_get(onlp_oid_t id, onlp_oid_hdr_t* rv)
 {
-    return ONLP_STATUS_E_UNSUPPORTED;
+    onlp_thermal_info_t* info;
+    int thermalid;
+
+    VALIDATE(id);
+    thermalid = ONLP_OID_ID_GET(id);
+    if(thermalid >= THERMAL_NUM) {
+        return ONLP_STATUS_E_INVALID;
+    }
+
+    info = &thermal_info[thermalid];
+    *rv = info->hdr;
+
+    return ONLP_STATUS_OK;
 }
 
 int onlp_thermali_ioctl(int id, va_list vargs)

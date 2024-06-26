@@ -111,6 +111,22 @@ onlp_fan_info_t fan_info[] = {
         0,
         0,
         ONLP_FAN_MODE_INVALID,
+    },
+    {
+        { ONLP_FAN_ID_CREATE(FAN_ID_FAN11), "FANTRAY 11", 0 },
+        ONLP_FAN_STATUS_PRESENT,
+        ONLP_FAN_CAPS_GET_RPM,
+        0,
+        0,
+        ONLP_FAN_MODE_INVALID,
+    },
+    {
+        { ONLP_FAN_ID_CREATE(FAN_ID_FAN12), "FANTRAY 12", 0 },
+        ONLP_FAN_STATUS_PRESENT,
+        ONLP_FAN_CAPS_GET_RPM,
+        0,
+        0,
+        ONLP_FAN_MODE_INVALID,
     }
 };
     
@@ -173,6 +189,8 @@ onlp_fani_percentage_set(onlp_oid_t id, int percentage)
         case FAN_ID_FAN8:
         case FAN_ID_FAN9:
         case FAN_ID_FAN10:
+        case FAN_ID_FAN11:
+        case FAN_ID_FAN12:
 			rc = onlp_fani_rpm_set(id, perc_val);
             break;
         default:
@@ -201,6 +219,8 @@ onlp_fani_info_get(onlp_oid_t id, onlp_fan_info_t* info)
         case FAN_ID_FAN8:
         case FAN_ID_FAN9:
         case FAN_ID_FAN10:
+        case FAN_ID_FAN11:
+        case FAN_ID_FAN12:
             rc = pltfm_fan_info_get(info, fan_id);
             break;
         default:            

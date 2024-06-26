@@ -47,19 +47,30 @@ onlp_sfpi_bitmap_get(onlp_sfp_bitmap_t* bmap)
         AIM_BITMAP_SET(bmap, p);
     }
 
+    /* For sfp28. */
+    for(p = QSFP_NUM + 1; p <= (QSFP_NUM + SFP_NUM); p++) {
+        AIM_BITMAP_SET(bmap, p);
+    }
+
     return ONLP_STATUS_OK;
 }
 
 int
 onlp_sfpi_is_present(int port)
 {
-    int status, rc, pres_val;    
-           
-    if ((rc = pltfm_qsfp_present_get(port, &pres_val)) != ONLP_STATUS_OK) {
-        return ONLP_STATUS_E_INTERNAL;
-    }
+    int status, rc, pres_val;
 
-    status = ((pres_val >> (port - 1)) & 1);
+    if (port <= QSFP_NUM) {
+        if ((rc = pltfm_qsfp_present_get(port, &pres_val)) != ONLP_STATUS_OK) {
+            return ONLP_STATUS_E_INTERNAL;
+        }
+        status = ((pres_val >> (port - 1)) & 1);
+    } else if (port <= (QSFP_NUM + SFP_NUM)) {
+        if ((rc = pltfm_sfp_present_get(port, &pres_val)) != ONLP_STATUS_OK) {
+            return ONLP_STATUS_E_INTERNAL;
+        }
+        status = ((pres_val >> (port - QSFP_NUM - 1)) & 1);
+    }
 
    /* status: 0 -> Down, 1 -> Up */
     return status;
@@ -73,6 +84,12 @@ onlp_sfpi_presence_bitmap_get(onlp_sfp_bitmap_t* dst)
     int rc = 0;
     
     for (p = 1; p <= QSFP_NUM; p++) {        
+        rc = onlp_sfpi_is_present(p);
+        AIM_BITMAP_MOD(dst, p - 1, (1 == rc) ? 1 : 0);
+    }
+
+    /* For sfp28. */
+    for(p = QSFP_NUM + 1; p <= (QSFP_NUM + SFP_NUM); p++) {
         rc = onlp_sfpi_is_present(p);
         AIM_BITMAP_MOD(dst, p - 1, (1 == rc) ? 1 : 0);
     }
@@ -108,15 +125,29 @@ onlp_sfpi_eeprom_read(int port, uint8_t data[256])
     int size = 0;
     memset(data, 0, 256);
 
-	if(onlp_file_read(data, 256, &size, "/var/asterfusion/qsfp_%d_eeprom", port) != ONLP_STATUS_OK) {
-        AIM_LOG_ERROR("Unable to read eeprom from port(%d)\r\n", port);
-        return ONLP_STATUS_E_INTERNAL;
+    if (port <= QSFP_NUM) {
+        if(onlp_file_read(data, 256, &size, "/var/asterfusion/qsfp_%d_eeprom", port) != ONLP_STATUS_OK) {
+            AIM_LOG_ERROR("Unable to read eeprom from port(%d)\r\n", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+
+        if (size != 256) {
+            AIM_LOG_ERROR("Unable to read eeprom from port(%d), size is different!\r\n", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+    } else if (port <= (QSFP_NUM + SFP_NUM)) {
+        int p = port - QSFP_NUM;
+        if(onlp_file_read(data, 256, &size, "/var/asterfusion/sfp_%d_eeprom", p) != ONLP_STATUS_OK) {
+            AIM_LOG_ERROR("Unable to read eeprom from port(%d)\r\n", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+
+        if (size != 256) {
+            AIM_LOG_ERROR("Unable to read eeprom from port(%d), size is different!\r\n", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
     }
 
-    if (size != 256) {
-        AIM_LOG_ERROR("Unable to read eeprom from port(%d), size is different!\r\n", port);
-        return ONLP_STATUS_E_INTERNAL;
-    }
     return ONLP_STATUS_OK;
 }
 
@@ -126,24 +157,47 @@ onlp_sfpi_dom_read(int port, uint8_t data[256])
     FILE* fp;
     char file[64] = {0};
 
-    sprintf(file, "/var/asterfusion/qsfp_%d_eeprom", port);
-    fp = fopen(file, "r");
-    if(fp == NULL) {
-        AIM_LOG_ERROR("Unable to open the eeprom device file of port(%d)", port);
-        return ONLP_STATUS_E_INTERNAL;
-    }
+    if (port <= QSFP_NUM) {
+        sprintf(file, "/var/asterfusion/qsfp_%d_eeprom", port);
+        fp = fopen(file, "r");
+        if(fp == NULL) {
+            AIM_LOG_ERROR("Unable to open the eeprom device file of port(%d)", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
 
-    if (fseek(fp, 256, SEEK_CUR) != 0) {
+        if (fseek(fp, 256, SEEK_CUR) != 0) {
+            fclose(fp);
+            AIM_LOG_ERROR("Unable to set the file position indicator of port(%d)", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+
+        int ret = fread(data, 1, 256, fp);
         fclose(fp);
-        AIM_LOG_ERROR("Unable to set the file position indicator of port(%d)", port);
-        return ONLP_STATUS_E_INTERNAL;
-    }
+        if (ret != 256) {
+            AIM_LOG_ERROR("Unable to read the module_eeprom device file of port(%d, %d)", port, ret);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+    } else if (port <= (QSFP_NUM + SFP_NUM)) {
+        int p = port - QSFP_NUM;
+        sprintf(file, "/var/asterfusion/sfp_%d_eeprom", p);
+        fp = fopen(file, "r");
+        if(fp == NULL) {
+            AIM_LOG_ERROR("Unable to open the eeprom device file of port(%d)", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
 
-    int ret = fread(data, 1, 256, fp);
-    fclose(fp);
-    if (ret != 256) {
-        AIM_LOG_ERROR("Unable to read the module_eeprom device file of port(%d, %d)", port, ret);
-        return ONLP_STATUS_E_INTERNAL;
+        if (fseek(fp, 256, SEEK_CUR) != 0) {
+            fclose(fp);
+            AIM_LOG_ERROR("Unable to set the file position indicator of port(%d)", port);
+            return ONLP_STATUS_E_INTERNAL;
+        }
+
+        int ret = fread(data, 1, 256, fp);
+        fclose(fp);
+        if (ret != 256) {
+            AIM_LOG_ERROR("Unable to read the module_eeprom device file of port(%d, %d)", port, ret);
+            return ONLP_STATUS_E_INTERNAL;
+        }
     }
     return ONLP_STATUS_OK;
 }

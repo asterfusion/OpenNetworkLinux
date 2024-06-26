@@ -42,10 +42,11 @@
 #define FAN_CTRL_SET2         2
 
 #define QSFP_NUM              32
+#define SFP_NUM               2
 #define THERMAL_NUM           8
 #define LED_NUM               4
-#define FAN_NUM               10
-
+#define FAN_NUM               12
+#define PSU_NUM               2
 
 #define THERMAL_SHUTDOWN_DEFAULT        105000
 
@@ -154,10 +155,10 @@ typedef enum led_oid_e {
 typedef enum thermal_id_e {
     THERMAL_ID_LEFT_MAIN_BOARD  = 1,
     THERMAL_ID_RIGHT_MAIN_BOARD = 2,
-    THERMAL_ID_BACK_DC =3,
-    THERMAL_ID_BACK_ASIC = 4,
-    THERMAL_ID_JUNCTION_ASIC = 5,
-    THERMAL_ID_AROUND_ASIC = 6,
+    THERMAL_ID_FAN_1 = 3,
+    THERMAL_ID_FAN_2 = 4,
+    THERMAL_ID_BF_AMBIENT = 5,
+    THERMAL_ID_BF_JUNCTION = 6,
     THERMAL_ID_TOFINO_MAIN = 7,
     THERMAL_ID_TOFINO_REMOTE = 8,
     //THERMAL_ID_FAN1 = 7,
@@ -170,10 +171,10 @@ typedef enum thermal_id_e {
 typedef enum thermal_oid_e {
     THERMAL_OID_LEFT_MAIN_BOARD     = ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD),
     THERMAL_OID_RIGHT_MAIN_BOARD    = ONLP_THERMAL_ID_CREATE(THERMAL_ID_RIGHT_MAIN_BOARD),
-    THERMAL_OID_BACK_DC             = ONLP_THERMAL_ID_CREATE(THERMAL_ID_BACK_DC),
-    THERMAL_OID_BACK_ASIC           = ONLP_THERMAL_ID_CREATE(THERMAL_ID_BACK_ASIC),
-    THERMAL_OID_JUNCTION_ASIC       = ONLP_THERMAL_ID_CREATE(THERMAL_ID_JUNCTION_ASIC),
-    THERMAL_OID_AROUND_ASIC         = ONLP_THERMAL_ID_CREATE(THERMAL_ID_AROUND_ASIC),
+    THERMAL_OID_FAN_1               = ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN_1),
+    THERMAL_OID_FAN_2               = ONLP_THERMAL_ID_CREATE(THERMAL_ID_FAN_2),
+    THERMAL_OID_BF_AMBIENT          = ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_AMBIENT),
+    THERMAL_OID_BF_JUNCTION         = ONLP_THERMAL_ID_CREATE(THERMAL_ID_BF_JUNCTION),
     THERMAL_OID_TOFINO_MAIN         = ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_MAIN),
     THERMAL_OID_TOFINO_REMOTE       = ONLP_THERMAL_ID_CREATE(THERMAL_ID_TOFINO_REMOTE),
 #if 0
@@ -202,6 +203,8 @@ typedef enum fan_id_e {
     FAN_ID_FAN8 = 8,
     FAN_ID_FAN9 = 9,
     FAN_ID_FAN10 = 10,
+    FAN_ID_FAN11 = 11,
+    FAN_ID_FAN12 = 12,
 } fan_id_t;
 
 typedef enum psu_id_e {
@@ -225,6 +228,7 @@ typedef enum psu_id_e {
 #define ARRAYSIZE(_x) (sizeof(_x)/sizeof(_x[0]))
 
 int pltfm_qsfp_present_get(int port, int *mask);
+int pltfm_sfp_present_get(int port, int *mask);
 int pltfm_thermal_get(onlp_thermal_info_t* info, int thermal_id);
 int pltfm_psu_thermal_get(onlp_thermal_info_t* info, int id);
 int pltfm_psu_get(onlp_psu_info_t* info, int id);
