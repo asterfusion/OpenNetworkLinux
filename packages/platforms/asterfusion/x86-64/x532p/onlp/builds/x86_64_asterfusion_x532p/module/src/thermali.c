@@ -41,7 +41,7 @@ static onlp_thermal_info_t thermal_info[] = {
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Far right of mainboard", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_RIGHT_MAIN_BOARD), "Far right of mainboard", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_GET_TEMPERATURE, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
@@ -152,7 +152,7 @@ int onlp_thermali_status_get(onlp_oid_t id, uint32_t* rv)
 
     VALIDATE(id);
     thermalid = ONLP_OID_ID_GET(id);
-    if(thermalid >= THERMAL_NUM) {
+    if(thermalid > THERMAL_NUM) {
         return ONLP_STATUS_E_INVALID;
     }
 
@@ -168,7 +168,7 @@ int onlp_thermali_hdr_get(onlp_oid_t id, onlp_oid_hdr_t* rv)
 
     VALIDATE(id);
     thermalid = ONLP_OID_ID_GET(id);
-    if(thermalid >= THERMAL_NUM) {
+    if(thermalid > THERMAL_NUM) {
         return ONLP_STATUS_E_INVALID;
     }
 

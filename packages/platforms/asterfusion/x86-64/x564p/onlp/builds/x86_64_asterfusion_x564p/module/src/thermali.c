@@ -33,7 +33,7 @@ static onlp_thermal_info_t thermal_info[] = {
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
-    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_LEFT_MAIN_BOARD), "Chassis Thermal (Right)", 0},
+    { { ONLP_THERMAL_ID_CREATE(THERMAL_ID_RIGHT_MAIN_BOARD), "Chassis Thermal (Right)", 0},
                 ONLP_THERMAL_STATUS_PRESENT,
                 ONLP_THERMAL_CAPS_ALL, 0, THERMAL_THRESHOLD_INIT_DEFAULTS
     },
