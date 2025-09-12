@@ -8,11 +8,13 @@
 - smartmontools
 - grub2
 - onl-upgrade
-- hw-management
-- onl-kernel-4.9-lts-x86-64-all-modules
+  #- hw-management
+#- onl-kernel-4.9-lts-x86-64-all-modules
 - onl-kernel-4.14-lts-x86-64-all-modules
-- onl-kernel-4.19-lts-x86-64-all-modules
-- onl-kernel-5.4-lts-x86-64-all-modules
+#- onl-kernel-4.19-lts-x86-64-all-modules
+#- onl-kernel-5.4-lts-x86-64-all-modules
+#- onl-kernel-5.10-lts-x86-64-all-modules
+- onl-kernel-5.15-lts-x86-64-all-modules
 - efibootmgr
 - gdisk
 - acpid
@@ -164,6 +166,10 @@
 - manpages-de-dev
 #- manpages-posix
 #- manpages-posix-dev
+- lrzsz
 - glibc-doc
 - man-db
 - man
+- zip
+- unzip
+- kdump-tools

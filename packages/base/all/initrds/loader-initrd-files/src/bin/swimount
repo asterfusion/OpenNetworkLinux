@@ -29,6 +29,30 @@ class Runner(onl.install.InstallUtils.SubprocessMixin):
         self.blkid = BlkidParser(log=self.log)
         self.ubinfo = UbinfoParser(log=self.log)
 
+    def getGrunenv(self):
+        mounting = False
+        saved_entry_value = 0
+        if not os.path.exists("/mnt/onl/boot/grub/grubenv"):
+            os.system("mount -t ext4 /dev/sda3 /mnt/")
+            mounting = True
+
+        if mounting:
+            with open("/mnt/grub/grubenv", 'r') as file:
+                file_contents = file.read()
+        else:
+            with open("/mnt/onl/boot/grub/grubenv", 'r') as file:
+                file_contents = file.read()
+        lines = file_contents.split('\n')
+        for line in lines:
+            if line.startswith('saved_entry='):
+                saved_entry_value = line.split('=')[1]
+                break
+
+        saved_entry_value = saved_entry_value.strip()
+        if mounting:
+            os.system("umount /dev/sda3")
+        return saved_entry_value
+
     def mount(self, SWI):
 
         if SWI.startswith('nfs://'):
@@ -84,11 +108,23 @@ class Runner(onl.install.InstallUtils.SubprocessMixin):
                 label = k
                 mpt = v['dir']
                 path = '/'
+                if self.getGrunenv() == '1':
+                    if label == 'ONL-DATA1':
+                        continue
+                else:
+                    if label == 'ONL-DATA2':
+                        continue
                 break
             if SWI.startswith(v['dir'] + '/'):
                 label = k
                 mpt = v['dir']
                 path = SWI[len(mpt)+1:]
+                if self.getGrunenv() == '1':
+                    if label == 'ONL-DATA1':
+                        continue
+                else:
+                    if label == 'ONL-DATA2':
+                        continue
                 break
         if label is not None:
             try:
@@ -121,6 +157,12 @@ class Runner(onl.install.InstallUtils.SubprocessMixin):
             if v['dir'].endswith('/' + devspec):
                 label = k
                 mpt = v['dir']
+                if self.getGrunenv() == '1':
+                    if label == 'ONL-DATA1':
+                        continue
+                else:
+                    if label == 'ONL-DATA2':
+                        continue
                 break
         if label is not None:
             try:

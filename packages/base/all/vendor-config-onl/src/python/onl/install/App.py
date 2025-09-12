@@ -19,6 +19,7 @@ from InstallUtils import SubprocessMixin
 from InstallUtils import ProcMountsParser
 from ShellApp import OnieBootContext, OnieSysinfo
 import ConfUtils, BaseInstall
+install_from_onl = False
 
 class App(SubprocessMixin, object):
 
@@ -257,6 +258,13 @@ class App(SubprocessMixin, object):
             else:
                 return plat.partition('-')[0]
 
+        # recover platform specifier from ONL runtime
+        if plat is None and os.path.exists("/etc/onl/platform"):
+            with open("/etc/onl/platform") as fd:
+                plat = fd.read().strip()
+            self.log.info("ONL installer running under ONL or ONL loader.")
+            global install_from_onl
+            install_from_onl = True
         # recover platform specifier from installer configuration
         if plat is None:
             plat = getattr(self.installerConf, 'onie_platform', None)
@@ -272,12 +280,6 @@ class App(SubprocessMixin, object):
             if plat:
                 self.log.info("ONL installer running under ONIE.")
                 plat = plat.replace('_', '-').replace('.', '-')
-
-        # recover platform specifier from ONL runtime
-        if plat is None and os.path.exists("/etc/onl/platform"):
-            with open("/etc/onl/platform") as fd:
-                plat = fd.read().strip()
-            self.log.info("ONL installer running under ONL or ONL loader.")
 
         if plat is not None and arch is None:
             arch = _p2a(plat)

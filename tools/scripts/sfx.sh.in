@@ -34,9 +34,141 @@ SFX_LOOP=1 ## set to '' if this unzip cannot read from a loopback/block ######
 SFX_PIPE=1 ## set to '' if this unzip cannot read from a pipe ################
 SFX_INPLACE= ## set to '1' if this zip file can be modified in place##########
 
+INSTALL_FROM_ONL=false
+UPGRADE_WITH_RELEASE=false
+bin_dir="/mnt/onl/data/deb"
+choose_software=""
+count=0
+
+do_cleanbin()
+{
+  s2=`echo $choose_software | wc -L`
+  if [ "$s2" -gt 0 ]; then
+    /bin/rm -f /mnt/onl/images/$choose_software*
+  fi
+}
+
+get_partition_number()
+{
+    blkid | grep "LABEL=\"$1\"" | sed 's/^.*\([0-9]\+\)\: LABEL.*/\1/'
+}
+release=`cat /etc/os-release | grep -w NAME`
+if [ -z "${release##*onie*}" ] ; then
+  echo "install onl from onie"
+else
+  ONL_BOOT_PARTITION_NUMBER=$(get_partition_number "ONL-BOOT")
+  ONL_CONFIG_PARTITION_NUMBER=$(get_partition_number "ONL-CONFIG")
+  ONL_IMAGES_PARTITION_NUMBER=$(get_partition_number "ONL-IMAGES")
+  ONL_PRIMARY_PARTITION_NUMBER=$(get_partition_number "ONL-DATA1")
+  ONL_SECONDARY_PARTITION_NUMBER=$(get_partition_number "ONL-DATA2")
+  if ! ( [ -n "$ONL_BOOT_PARTITION_NUMBER" ] && [ -n "$ONL_CONFIG_PARTITION_NUMBER" ] && [ -n "$ONL_IMAGES_PARTITION_NUMBER" ] && [ -n "$ONL_PRIMARY_PARTITION_NUMBER" ] \
+    && [ -n "$ONL_SECONDARY_PARTITION_NUMBER" ] ); then
+    echo "Detected incorrect number of partitions, please install onl from onie"
+    exit 1
+  fi
+  INSTALL_FROM_ONL=true
+  if ! mount | grep -q "/dev/sda5"; then
+    mount -t ext4 /dev/sda5 /mnt/onl/images
+    /bin/rm -f /mnt/onl/images/*.swi
+    umount /dev/sda5
+  else
+    if [ -d "/mnt/onl/images" ]; then
+      /bin/rm -f /mnt/onl/images/*.swi
+    fi
+  fi
+fi
+
 if test "$SFX_PAD"; then
   UNZIPARGS=$UNZIPARGS${UNZIPARGS:+" "}"-x $SFX_PAD"
 fi
+
+upgrade_with_cfg()
+{
+  if $UPGRADE_WITH_RELEASE; then
+    if $INSTALL_FROM_ONL; then
+      s1=`pidof stratum_bfrt | wc -L`
+      s2=`pidof stratum_bf | wc -L`
+      if [ "$s1" -gt 0 ] || [ "$s2" -gt 0 ]; then
+        current_software=`cat /mnt/onl/data/stratum/restful_agent/restful_feature/version`
+        if [ "${choose_software%"$current_software"*}" = "$choose_software" ]; then
+          echo "The current version($current_software) is not consistent with the selected version($choose_software)."
+          do_cleanbin
+          exit 1
+        else
+          touch save_cfg.py
+          chmod 777 save_cfg.py
+          save_cfg_string="#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n\n\
+import sys\nsys.path.append('/mnt/onl/data/stratum/restful_agent/restful_feature/')\n\
+import export_config_main\n\nif __name__ == '__main__':\n\texport_config_main.main()"
+          echo  $save_cfg_string > save_cfg.py
+          python3 save_cfg.py -p 443 -o all_config.json
+          /bin/rm -f /mnt/onl/images/*.json
+          mv all_config.json /mnt/onl/images/ 1>/dev/null 2>/dev/null
+          /bin/rm -f save_cfg.py
+        fi
+      else
+        echo "The current partition does not have the version installed."
+        do_cleanbin
+        exit 1
+      fi
+    fi
+  else
+    echo "This operation is not supported without upgrading the software."
+    do_cleanbin
+    exit 1
+  fi
+}
+
+upgrade_with_release()
+{
+  if $INSTALL_FROM_ONL; then
+    if ls "$bin_dir" | grep -q '\.bin'; then
+      echo "please choose software file:"
+      for file in "$bin_dir"/*.bin*; do
+        if [ -f "$file" ]; then
+           count=$((count + 1))
+           echo $count")" "$file"
+           files="$files $file"
+        fi
+      done
+      echo
+      while true; do
+        read -p "input the label before the file: " user_choice
+        if [ "$user_choice" -eq "$user_choice" ] 2>/dev/null; then
+          if [ "$user_choice" -le "$count" ]; then
+            break
+          else
+            echo "Invalid input."
+          fi
+        else
+          echo "Invalid input."
+        fi
+      done
+      IFS=" "
+      set -- $files
+      count=0
+      for word in "$@"; do
+          count=$((count + 1))
+          if [ $count -eq $user_choice ]; then
+            find "/mnt/onl/images/" -type f -name "*\.bin*" -exec rm {} \;
+            echo "Software: $word"
+            cp -fv $word /mnt/onl/images/ 1>/dev/null 2>/dev/null
+            choose_software=$word
+            choose_software="${choose_software##*/}"
+            choose_software=$(echo "$choose_software" | awk -F '.bin' '{print $1}')
+            break
+          fi
+      done
+      IFS=" "
+    else
+      echo "Software file not found in $bin_dir"
+      exit 1
+    fi
+  else
+    echo "Unsupported operation in ONIE"
+    exit 1
+  fi
+}
 
 while test $# -gt 0; do
   case "$1" in
@@ -63,6 +195,15 @@ while test $# -gt 0; do
     -q)
       UNZIPQ="$1"
       UNZIPV=
+      shift
+      ;;
+    -r)
+      upgrade_with_release
+      UPGRADE_WITH_RELEASE=true
+      shift
+      ;;
+    -s)
+      upgrade_with_cfg
       shift
       ;;
     -*)

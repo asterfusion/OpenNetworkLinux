@@ -5,6 +5,7 @@
 # Modify install-bfnpltform-pkgs.sh to add or delete customized components if reuqired.
 # Comment all entries in install-bfnplatform-pkgs.sh will disable the intergration.
 #
+# Last Updated on 14 Apr. 2025
 # Last Updated on 08 Mar. 2024
 # Last Updated on 30 Aug. 2023
 # Created by Hang Tsi <tsihang@asterfusion.com> on 02 Nov. 2022
@@ -17,23 +18,25 @@ OS=`lsb_release -cs`
 PKGS=$ROOTDIR/bfnplatform
 INSTALL_ONLINE=false
 INSTALL_DIR=$HOME/bfnplatform
-
+# from 4.14.151-OpenNetworkLinux
+KERNEL_RELEASE="5.15.180-OpenNetworkLinux"
+onl_kernel=`echo $KERNEL_RELEASE | cut -b 1-4`
 
 # Also keep bsp for SDE lower than 9.9.x
-debs_bfnplatform_default=("$PKGS/bsp-lts_24.02-sde9u9_generic_amd64.deb" 
-"$PKGS/bsp-lts_24.02-sde9u3_generic_amd64.deb")
+# uart.c is used to detect platform
+debs_bfnplatform_default=("$PKGS/uart.c" 
+"$PKGS/bsp-lts_25.03-sde9u9_generic_amd64.deb" 
+"$PKGS/bsp-lts_25.03-sde9u3_generic_amd64.deb")
 
-# Update to sde-9.13.2 for both tof/tof2 platforms
-debs_bfnsdk_default=("$PKGS/sde-9.13.2_3.00-all_generic_amd64.deb" 
-"$PKGS/kdrv-9.13.2_1.00-all_4.14.151-OpenNetworkLinux_amd64.deb")
+# sde-x.y.z_1.**.deb for tof1 only
+# sde-x.y.z_2.**.deb for tof2 only
+debs_bfnsdk_default=("$PKGS/sde-9.13.3_1.00-all_generic_amd64.deb" 
+"$PKGS/sde-9.13.3_2.00-2.4E0-4-all_generic_amd64.deb")
 
 # Debs which suitable to $debs_bfnsdk_default
 debs_common_default=("$PKGS/thrift_0.14.1_generic_amd64.deb" 
 "$PKGS/grpc_1.40.0-r1_generic_amd64.deb" 
-"$PKGS/protobuf-cpp_3.15.8_generic_amd64.deb" 
-"$PKGS/nct6779d_1.04-cme3000_4.14.151-OpenNetworkLinux_amd64.deb" 
-"$PKGS/cgos_1.06-congatech-d15xx_4.14.151-OpenNetworkLinux_amd64.deb" 
-"$PKGS/onl-kernel-4.14-lts-x86-64-all_1.0.0_amd64.deb")
+"$PKGS/protobuf-cpp_3.15.8_generic_amd64.deb")
 
 debs_bfnplatform_legacy308=("$PKGS/bsp-8.9.1_1.04-2-308-20230209-sde9u3_generic_amd64.deb")
 debs_bfnsdk_legacy308=("Legacy")
@@ -44,7 +47,6 @@ friendly_exit() {
 }
 
 do_instdebs() {
-
     if [ $# -lt 1 ]; then
         friendly_exit
     fi
@@ -54,14 +56,13 @@ do_instdebs() {
     for ((i = 0; i < ${#dirs[*]}; i++))
     do
         deb=${dirs[$i]}
-        printf "Copying %-32s\n" $deb 
+        printf "Copying %-32s\n" $deb
         dpkg -i $deb > /dev/null 2>&1
         unset deb
     done
 }
 
 do_copydebs() {
-
     if [ $# -lt 1 ]; then
         friendly_exit
     fi
@@ -75,6 +76,29 @@ do_copydebs() {
         cp $deb $INSTALL_DIR/
         unset deb
     done
+}
+
+do_copydrv() {
+    deb=$PKGS/nct6779d_1.04-cme3000_${KERNEL_RELEASE}_amd64.deb
+    printf "Copying %-32s\n" $deb
+    cp $deb $INSTALL_DIR/
+
+    deb=$PKGS/cgos_1.06-congatech-d15xx_${KERNEL_RELEASE}_amd64.deb
+    printf "Copying %-32s\n" $deb
+    cp $deb $INSTALL_DIR/
+
+    deb=$PKGS/kdrv-9.13.3_1.00-all_${KERNEL_RELEASE}_amd64.deb
+    printf "Copying %-32s\n" $deb
+    cp $deb $INSTALL_DIR/
+
+    deb=$PKGS/onl-kernel-${onl_kernel}-lts-x86-64-all_1.0.0_amd64.deb
+    printf "Copying %-32s\n" $deb
+    cp $deb $INSTALL_DIR/
+
+    # For intel ICE E800 Serials
+    deb=$PKGS/intel-ice-1.3.16.0.tgz
+    printf "Copying %-32s\n" $deb
+    cp $deb $INSTALL_DIR/
 }
 
 #
@@ -140,6 +164,8 @@ do_copydebs ${debs_bfnplatform_default[*]}
 #    grpc-1.40.0
 ################################################################
 do_copydebs ${debs_common_default[*]}
+
+do_copydrv
 
 # Skip installation due to the Warm Tips
 #do_instdebs ${debs_common_default[*]}

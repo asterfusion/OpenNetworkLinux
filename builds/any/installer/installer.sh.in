@@ -151,7 +151,14 @@ fi
 if test "$onie_platform"; then
   :
 else
-  onie_platform=$(onie-sysinfo -p 2>/dev/null) || :
+  if [ -d "/etc/onl/platform" ]; then
+    onie_platform=`cat /etc/onl/platform`
+    if [[ "$onie_platform" == "x86-64"* ]]; then
+      onie_arch="x86_64"
+    fi
+  else
+    onie_platform=$(onie-sysinfo -p 2>/dev/null) || :
+  fi
 fi
 if test "$onie_arch"; then
   :
@@ -589,6 +596,47 @@ fi
 
 trap - 0 1
 installer_umount
+
+INSTALLING_BOOT_ENTRY=0
+get_partition_number()
+{
+    blkid | grep "LABEL=\"$1\"" | sed 's/^.*\([0-9]\+\)\: LABEL.*/\1/'
+}
+
+GRUB_PARTITION_NUMBER=$(get_partition_number "ONL-BOOT")
+
+if [ ! -d "/mnt/onl/boot" ]; then
+  mkdir -p /mnt/onl-boot
+  mount -t ext4 /dev/sda${GRUB_PARTITION_NUMBER} /mnt/onl-boot
+  cp /etc/machine*.conf /mnt/onl-boot/grub/
+  grub-editenv /mnt/onl-boot/grub/grubenv set saved_entry=0
+  INACTIVE_PARTITION_LABEL="ONL-DATA1"
+  umount /dev/sda${GRUB_PARTITION_NUMBER}
+else
+  mount -t ext4 /dev/sda${GRUB_PARTITION_NUMBER} /mnt/onl/boot/
+  grub_entry=`cat /mnt/onl/boot/grub/grubenv | grep saved_entry | cut -d'=' -f2`
+  if [ -n "$grub_entry" ] && [ $grub_entry -eq 0 ]; then
+    INSTALLING_BOOT_ENTRY=1
+    INACTIVE_PARTITION_LABEL="ONL-DATA2"
+  else
+    INSTALLING_BOOT_ENTRY=0
+    INACTIVE_PARTITION_LABEL="ONL-DATA1"
+  fi
+  grub-editenv /mnt/onl/boot/grub/grubenv set saved_entry=${INSTALLING_BOOT_ENTRY}
+  [ -f /etc/hostname ] && cp -fv /etc/hostname /mnt/onl/boot/ 1>/dev/null 2>/dev/null
+  [ -f /etc/deviceName ] && cp -fv /etc/deviceName /mnt/onl/boot/ 1>/dev/null 2>/dev/null
+  [ -f /etc/passwd ] && cp -fv /etc/passwd /mnt/onl/boot/ 1>/dev/null 2>/dev/null
+  [ -f /etc/shadow ] && cp -fv /etc/shadow /mnt/onl/boot/ 1>/dev/null 2>/dev/null
+  [ -f /etc/network/interfaces ] && cp -fv /etc/network/interfaces /mnt/onl/boot/ 1>/dev/null 2>/dev/null
+  umount /dev/sda${GRUB_PARTITION_NUMBER}
+fi
+
+INACTIVE_PARTITION_NUMBER=$(get_partition_number "$INACTIVE_PARTITION_LABEL")
+
+echo y | mkfs.ext4 -L "$INACTIVE_PARTITION_LABEL" -q /dev/sda${INACTIVE_PARTITION_NUMBER} || {
+    echo -e "${red}ERROR${normal}: Failed to format partition /dev/sda${INACTIVE_PARTITION_NUMBER}!"
+    exit 1
+}
 
 if test "${onie_platform}"; then
   installer_reboot $installer_wait

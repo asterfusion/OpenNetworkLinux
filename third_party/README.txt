@@ -1,6 +1,36 @@
 Open Network Linux
 ==================
 
+We have several files in ONL /root filesystem:
+root@localhost:~# tree
+.
+├── bfnplatform
+│   ├── bsp-lts_25.03-sde9u9_generic_amd64.deb
+│   ├── grpc_1.40.0-r1_generic_amd64.deb
+│   ├── nct6779d_1.04-cme3000_`uname -r`_amd64.deb
+│   ├── cgos_1.06-congatech-d15xx_`uname -r`_amd64.deb
+│   ├── kdrv-9.13.3_1.00-all_`uname -r`_amd64.deb
+│   ├── protobuf-cpp_3.15.8_generic_amd64.deb
+│   ├── sde-9.13.3_1.00-all_generic_amd64.deb
+│   ├── sde-9.13.3_2.00-2.4E0-4-all_generic_amd64.deb
+│   ├── thrift_0.14.1_generic_amd64.deb
+│   └── uart.c
+├── quick-start.sh
+└── README.txt
+
+1 directory, 16 files
+
+The /root/quick-start.sh is a tool, which will automatically
+get all requried debs from /root/bfnplatform and then install
+them. It will also configure the networks and SSH for deivce.
+Besides, it will also write SDE enviroment variables to ~/.bashrc.
+You can freely run it for first use, OR you'd have to install
+them and then finish the following sections by hands to before
+getting started with X-T Programmable Bare Metal Switch.
+
+
+
+
 1. LAN and Remote access
 1.1. LAN
 root@localhost:~# vi /etc/network/interfaces
@@ -45,7 +75,7 @@ COMe     : CG1508
 Press any key to exit.
 
 4. Run intergrated diag.p4
-root@localhost:~# run_switchd.sh -p diag
+root@localhost:~# run_switchd.sh [--arch=tf2] -p diag
 
 5. Compile a new p4 source
 root@localhost:~# p4_build-9.x.y.sh /usr/local/sde/bf-sde-9.7.4/pkgsrc/p4/9.7.x/tna_exact_match.p4
@@ -66,21 +96,3 @@ IPython 6.5.0.dev -- An enhanced Interactive Python. Type '?' for help.
 
 bfrt_root>
 
-
-6. Compile SDE sources
-Put your SDE sources to devices, let's take /root/bf-sde-9.7.4.tgz as an example.
-root@localhost:~# tar -xvf bf-sde-9.7.4.tgz
-root@localhost:~# cd bf-sde-9.7.4/
-root@localhost:~/bf-sde-9.7.4# mkdir -p install/lib
-root@localhost:~/bf-sde-9.7.4# mkdir -p install/include
-root@localhost:~/bf-sde-9.7.4# mkdir -p install/bin
-root@localhost:~# cd bf-sde-9.7.4/p4studio
-root@localhost:~/bf-sde-9.7.4/p4studio# ./p4studio packages extract
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/lib/libproto* ../install/lib/
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/lib/libgrpc* ../install/lib/
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/include/google/ ../install/include/ -rf
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/include/grpc* ../install/include/ -rf
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/bin/protoc ../install/bin/
-root@localhost:~/bf-sde-9.7.4/p4studio# cp /usr/local/sde/bin/grpc_* ../install/bin/
-root@localhost:~/bf-sde-9.7.4/p4studio# ./p4studio configure
-root@localhost:~/bf-sde-9.7.4/p4studio# ./p4studio build

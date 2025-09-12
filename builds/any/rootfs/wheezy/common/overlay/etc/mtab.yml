@@ -1,6 +1,6 @@
 mounts:
   ONL-IMAGES:
-    mount: ro
+    mount: rw
     dir: /mnt/onl/images
     fsck: true
 

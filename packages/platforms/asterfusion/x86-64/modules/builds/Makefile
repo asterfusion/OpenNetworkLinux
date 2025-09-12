@@ -1,4 +1,4 @@
-KERNELS := onl-kernel-4.14-lts-x86-64-all:amd64
+KERNELS := onl-kernel-5.15-lts-x86-64-all:amd64
 KMODULES := $(wildcard *.c)
 VENDOR := asterfusion
 BASENAME := common

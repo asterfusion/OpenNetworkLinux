@@ -15,6 +15,7 @@ import zipfile
 import shutil
 import imp
 import fnmatch, glob
+import App
 
 from InstallUtils import SubprocessMixin
 from InstallUtils import MountContext, BlkidParser, PartedParser, UbinfoParser
@@ -288,6 +289,8 @@ class Base:
             'K' : 1000,
         }
 
+        split = False
+
         for part in self.im.platformConf['installer']:
 
             label, partData = list(part.items())[0]
@@ -305,6 +308,13 @@ class Base:
                     break
             if sz == '100%':
                 cnt = self.partedDevice.getLength() - nextBlock
+            elif sz == '50%':
+                if split != True:
+                    split = True
+                    cnt = (self.partedDevice.getLength() - nextBlock) / 2
+                    part_data = cnt
+                else:
+                    cnt = part_data
             if cnt is None:
                 self.log.error("invalid size (no units) for %s: %s",
                                part, sz)
@@ -502,10 +512,22 @@ if [ "${saved_entry}" ] ; then
    set default="${saved_entry}"
 fi
 
-menuentry %(boot_menu_entry)s {
+menuentry primary_%(boot_menu_entry)s {
   search --no-floppy --label --set=root ONL-BOOT
   # Always return to this entry by default.
   set saved_entry="0"
+  save_env saved_entry
+  echo 'Loading %(boot_loading_name)s ...'
+  insmod gzio
+  insmod part_msdos
+  linux /%(kernel)s %(args)s onl_platform=%(platform)s
+  initrd /%(platform)s.cpio.gz
+}
+
+menuentry secondry_%(boot_menu_entry)s {
+  search --no-floppy --label --set=root ONL-BOOT
+  # Always return to this entry by default.
+  set saved_entry="1"
   save_env saved_entry
   echo 'Loading %(boot_loading_name)s ...'
   insmod gzio
@@ -528,8 +550,6 @@ function onie_boot_uefi {
 
 function onie_boot_dos {
   search --no-floppy --label --set=root "${onie_boot_label}"
-  set saved_entry="0"
-  save_env saved_entry
   echo 'Loading ONIE ...'
   chainloader +1
 }
@@ -793,13 +813,14 @@ class GrubInstaller(SubprocessMixin, Base):
         self.log.info("found a disk with %d blocks",
                       self.partedDevice.getLength())
 
-        code = self.deletePartitions()
-        if code: return code
+        if not App.install_from_onl:
+            code = self.deletePartitions()
+            if code: return code
 
-        self.log.info("next usable block is %s", self.nextBlock)
+            self.log.info("next usable block is %s", self.nextBlock)
 
-        code = self.partitionParted()
-        if code: return code
+            code = self.partitionParted()
+            if code: return code
 
         # once we assign the ONL-BOOT partition,
         # we can re-target the grub environment

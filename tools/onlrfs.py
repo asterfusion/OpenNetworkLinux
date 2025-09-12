@@ -303,9 +303,7 @@ class OnlRfsBuilder(object):
     DEFAULTS = dict(
         DEBIAN_SUITE='wheezy',
         #DEBIAN_MIRROR='mirrors.kernel.org/debian/',
-        #DEBIAN_MIRROR='ftp.cn.debian.org/debian/',
-        #DEBIAN_MIRROR='archive.debian.org/debian/',
-        DEBIAN_MIRROR='mirrors.aliyun.com/debian-archive/debian/',
+        DEBIAN_MIRROR='ftp.cn.debian.org/debian/',
         APT_CACHE='127.0.0.1:3142/'
         )
 
@@ -325,6 +323,26 @@ class OnlRfsBuilder(object):
         if arch == 'powerpc':
             self.DEFAULTS['DEBIAN_MIRROR'] = 'archive.debian.org/debian/'
 
+        # By Hang Tsi 2023/11/10.
+        #os_release = os.path.join(dir_, 'etc', 'os-release')
+        os_release = os.path.join('/', 'etc/os-release')
+        os_release_dict = {}
+        if os.path.exists(os_release):
+            # Convert /etc/os-release to update DEBIAN_SUITE
+            import shlex
+            contents = open(os_release).read()
+            os_release_dict = dict(token.split('=') for token in shlex.split(contents))
+        codename = os_release_dict.get('VERSION_CODENAME')
+        if codename == 'stretch':
+            self.DEFAULTS['DEBIAN_MIRROR'] = 'mirrors.aliyun.com/debian-archive/debian/'
+        if codename == 'jessie':
+            self.DEFAULTS['DEBIAN_MIRROR'] = 'mirrors.aliyun.com/debian-archive/debian/'
+        if codename == 'wheezy':
+            self.DEFAULTS['DEBIAN_MIRROR'] = 'mirrors.aliyun.com/debian-archive/debian/'
+        logger.info("Hang Tsi: Distro %s with mirror '%s' getcwd %s", codename, self.DEFAULTS['DEBIAN_MIRROR'], os.getcwd())
+        #onlu.execute('sudo chroot %s /bin/mkdir /root/.gnupg' % os.path.join('/'))
+        #gpg --no-default-keyring --keyring /usr/share/keyrings/hestia-keyring.gpg --keyserver keyserver.ubuntu.com --recv-keys A189E93654F0B0E5
+        #onlu.execute("sudo gpg --no-default-keyring --keyring /usr/share/keyrings/hestia-keyring.gpg --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9")
         self.kwargs.update(self.DEFAULTS)
         self.__load(config)
         self.__validate()
@@ -618,8 +636,7 @@ rm -f /usr/sbin/policy-rc.d
                         f.write("%s\n" % issue)
                     onlu.execute("sudo chmod a-w %s" % fn)
 
-            logger.debug("by tsihang : getcwd %s" % os.getcwd())
-            logger.debug("by tsihang : opsdir %s" % dir_)
+            logger.debug("Hang Tsi: getcwd %s %s", os.getcwd(), dir)
             # Install extra pkgs
             pkgsrc = os.path.join(os.getenv('ONL'), 'third_party', 'pkgs')
             pkgdst = os.path.join(os.getcwd(), dir_, 'pkgs')
@@ -646,7 +663,7 @@ rm -f /usr/sbin/policy-rc.d
         with OnlRfsContext(dir_):
             for pspec in packages:
                 for pkg in pspec.split(','):
-                    logger.info("updating %s into %s", pkg, dir_)
+                    logger.info("Hang Tsi: Updating %s into %s", pkg, dir_)
                     cmd = (ONLPM, '--verbose',
                            '--sudo',
                            '--extract-dir', pkg, dir_,)

@@ -1,10 +1,14 @@
 mounts:
   ONL-IMAGES:
-    mount: ro
+    mount: rw
     dir: /mnt/onl/images
     fsck: true
 
-  ONL-DATA:
+  ONL-DATA1:
+    mount: rw
+    dir: /mnt/onl/data
+
+  ONL-DATA2:
     mount: rw
     dir: /mnt/onl/data
 

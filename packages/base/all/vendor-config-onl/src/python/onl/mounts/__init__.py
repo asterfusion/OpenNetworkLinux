@@ -149,6 +149,12 @@ class OnlMountManager(object):
         md = self.mdata['mounts']
         optional = set(x for x in md if md[x].get('optional', False))
         pending = set(x for x in md if not md[x].get('optional', False))
+        if self.getGrunenv() == '1':
+            if 'ONL-DATA1' in pending:
+                pending.remove('ONL-DATA1')
+        else:
+            if 'ONL-DATA2' in pending:
+                pending.remove('ONL-DATA2')
 
         def _discover(k):
             v = md[k]
@@ -260,6 +266,13 @@ class OnlMountManager(object):
             labels.remove('all')
             labels = labels + self.mdata['mounts'].keys()
 
+        if self.getGrunenv() == '1':
+            if 'ONL-DATA1' in labels:
+                labels.remove('ONL-DATA1')
+        else:
+            if 'ONL-DATA2' in labels:
+                labels.remove('ONL-DATA2')
+
         def _f(label):
             """skip labels that do not resolve to a block device (ideally, optional ones)"""
             mpt = self.mdata['mounts'][label]
@@ -318,6 +331,30 @@ class OnlMountManager(object):
             if self.mm.is_mounted(m['device'], m['dir']):
                 if all_ or m.get('mount', False) is False:
                     self.mm.umount(m['device'], m['dir'])
+
+    def getGrunenv(self):
+        mounting = False
+        saved_entry_value = 0
+        if not os.path.exists("/mnt/onl/boot/grub/grubenv"):
+            os.system("mount -t ext4 /dev/sda3 /mnt/")
+            mounting = True
+
+        if mounting:
+            with open("/mnt/grub/grubenv", 'r') as file:
+                file_contents = file.read()
+        else:
+            with open("/mnt/onl/boot/grub/grubenv", 'r') as file:
+                file_contents = file.read()
+        lines = file_contents.split('\n')
+        for line in lines:
+            if line.startswith('saved_entry='):
+                saved_entry_value = line.split('=')[1]
+                break
+
+        saved_entry_value = saved_entry_value.strip()
+        if mounting:
+            os.system("umount /dev/sda3")
+        return saved_entry_value
 
 
 

@@ -183,8 +183,11 @@ default:
   - ONL-IMAGES:
       =: 1GiB
       format: ext4
-  - ONL-DATA:
-      =: 100%
+  - ONL-DATA1:
+      =: 50%
+      format: ext4
+  - ONL-DATA2:
+      =: 50%
       format: ext4
 
   network:

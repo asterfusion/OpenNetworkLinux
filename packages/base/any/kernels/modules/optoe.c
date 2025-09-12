@@ -125,6 +125,9 @@
 #include <linux/sysfs.h>
 #include <linux/jiffies.h>
 #include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+#include <linux/i2c-mux.h>
+#include <linux/version.h>
 
 #ifdef EEPROM_CLASS
 #include <linux/eeprom_class.h>
@@ -860,8 +863,12 @@ static ssize_t set_dev_class(struct device *dev,
 		/* SFP family */
 		/* if it doesn't exist, create 0x51 i2c address */
 		if (!optoe->client[1]) {
+        #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,300)
 			optoe->client[1] = i2c_new_dummy(client->adapter, 0x51);
-			if (!optoe->client[1]) {
+        #else
+			optoe->client[1] = i2c_new_dummy_device(client->adapter, 0x51);
+        #endif
+            if (!optoe->client[1]) {
 				dev_err(&client->dev,
 					"address 0x51 unavailable\n");
 				mutex_unlock(&optoe->lock);
@@ -1095,8 +1102,12 @@ static int optoe_probe(struct i2c_client *client,
 
 	/* SFF-8472 spec requires that the second I2C address be 0x51 */
 	if (num_addresses == 2) {
-		optoe->client[1] = i2c_new_dummy(client->adapter, 0x51);
-		if (!optoe->client[1]) {
+        #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,300)
+        optoe->client[1] = i2c_new_dummy(client->adapter, 0x51);
+		#else
+        optoe->client[1] = i2c_new_dummy_device(client->adapter, 0x51);
+		#endif
+        if (!optoe->client[1]) {
 			dev_err(&client->dev, "address 0x51 unavailable\n");
 			err = -EADDRINUSE;
 			goto err_struct;
